@@ -64,11 +64,10 @@ mar.default <- c(5,4,4,2)+0.1 #Default margin parameter
 mar.custom <- mar.default+3
 
 pdf("cumtotalcrosscov.pdf",width=18.75,height=18.75) #pdf dimensions in inches
-par(mai = c(3,3,3,2))
+par(mai = c(3,3,3,2), cex=1.75, cex.axis=1.75, cex.lab=1.75, cex.main=2.5)
 plot(cumsum(svd.fern$d^2)/sum(svd.fern$d^2),main="Cumulative percentage of cross-covariance",
-     xlab="Index",ylab="",ylim=c(0,1),xlim=c(0,length((svd.fern$d))),yaxt="n",las=1,
-     cex=3.0,cex.axis=2.5,cex.lab=2.5,cex.main=5.0)
-axis(side=2,at=seq(0.0,1.0,0.2),labels=c("0%","20%","40%","60%","80%","100%"),las=1,cex.axis=2.5)
+     xlab="Index",ylab="",ylim=c(0,1),xlim=c(0,length((svd.fern$d))),yaxt="n",las=1)
+axis(side=2,at=seq(0.0,1.0,0.2),labels=c("0%","20%","40%","60%","80%","100%"),las=1)
 #axis(side=1,at=seq(0.0,7.0,1.0),labels=seq(0.0,7.0,1.0),las=1,cex.axis=3.0,pos=-0.1)
 abline(h=0.9,col="#ff0000",lty=4,lwd=2.0)
 abline(h=0.8,col="#ff0000",lty=2,lwd=2.0)
@@ -92,78 +91,88 @@ ordmap <- function(j){
   }
 }
 
-leftsveccoeffplot <- function(j,xmat,ymat){ #Plot coefficients of jth left singular vector
+leftsveccoeffplot <- function(j,k,xmat,ymat){ #Plot first k coefficients of jth left singular vector
   cov.mats <- cov(x=xmat,y=ymat)
   svd.mats <- svd(cov.mats)
-  par(mar=mar.custom)
-  bp.env <- barplot(height=svd.fern$u[,j],names.arg=env_vars,xlim=c(-1,1),
+  par(mar=mar.custom,cex=1.75, cex.axis=1.75, cex.lab=1.75, cex.main=2.5)
+  coeffout <- min(k,dim(svd.mats$u)[2]) 
+  bp.env <- barplot(height=svd.mats$u[1:coeffout,j],names.arg=env_vars,xlim=c(-1,1),
                     main=sprintf("%s environmental axis",ordmap(j)),
-                    horiz=TRUE,yaxt="n",xlab="Coefficient",ylab="Environmental factor",las=1,
-                    cex=2.5,cex.axis=2.5,cex.lab=3.0,cex.main=5.0)
-  axis(side=2,at=bp.env,labels=env_vars,pos=-0.5,cex.axis=2.5,las=1) #Axis on left
+                    horiz=TRUE,yaxt="n",xlab="Coefficient",ylab="Environmental factor",las=1)
+  axis(side=2,at=bp.env,labels=env_vars,pos=-0.5,las=1) #Axis on left
 }
 
-leftsveccoeffsqplot <- function(j,xmat,ymat){ #Plot squared coefficients of jth left singular vector
+leftsveccoeffsqplot <- function(j,xmat,ymat){ #Plot first k squared coefficients of jth left singular vector
   cov.mats <- cov(x=xmat,y=ymat)
   svd.mats <- svd(cov.mats)
   #Pick out most important components of left (environment) singular vectors
   sort.u <- sort(svd.fern$u[,j]^2,decreasing=TRUE,index.return=TRUE)
   sort.u$ivars <- env_vars[sort.u$ix]
-  par(mar = c(5,0,0,0)+mar.custom)
-  plot(sort.u$x,ylab="Squared Coefficient",main=sprintf("%s environmental axis",ordmap(j)),xaxt="n",xlab="",
-       cex=2.5,cex.axis=2.5,cex.lab=3.0,cex.main=5.0)
-  axis(1, at = c(1:length(sort.u$x)),labels = sort.u$ivars,cex.lab=1.5,cex.axis=1.5,las=2)
+  #coeffout <- min(k,length(sort.u))
+  par(mar = c(5,0,0,0)+mar.custom,cex=1.75, cex.axis=1.75, cex.lab=1.75, cex.main=2.5)
+  plot(sort.u$x,ylab="Squared Coefficient",main=sprintf("%s environmental axis",ordmap(j)),
+       xaxt="n",xlab="",las=3)
+  axis(1, at = c(1:length(sort.u$x)),labels = sort.u$ivars,las=3)
 }
 
 leftsveccoeffcumsumsqplot <- function(j,xmat,ymat){ #Plot squared coefficients of jth left singular vector
   cov.mats <- cov(x=xmat,y=ymat)
   svd.mats <- svd(cov.mats)
-  sort.u <- sort(svd.fern$u[,j]^2,decreasing=TRUE,index.return=TRUE)
+  sort.u <- sort(svd.mats$u[,j]^2,decreasing=TRUE,index.return=TRUE)
   sort.u$ivars <- env_vars[sort.u$ix]
-  par(mar = c(5,0,0,0)+mar.custom)
+  #coeffout <- min(k,length(sort.u))
+  par(mar = c(5,0,0,0)+mar.custom,cex=1.75, cex.axis=1.75, cex.lab=1.75, cex.main=2.5)
   plot(cumsum(sort.u$x),ylim=c(0,1),ylab="Cumulative percentage sum of squares",
-       main=sprintf("%s environmental axis",ordmap(j)),xaxt="n",yaxt="n",xlab="",
-       cex=2.5,cex.axis=2.5,cex.lab=3.0,cex.main=5.0)
-  axis(1, at = c(1:length(sort.u$x)),labels = sort.u$ivars,,cex.axis=1.5,cex.lab=1.5,las=2)
-  axis(2, at=seq(0.0,1.0,0.2),labels=c("0%","20%","40%","60%","80%","100%"),cex.axis=1.5,cex.lab=1.5,las=1)
+       main=sprintf("%s environmental axis",ordmap(j)),xaxt="n",yaxt="n",xlab="")
+  #axis(1, at = c(1:length(sort.u$x)),labels = sort.u$ivars,las=2)
+  axis(1, at = c(1:length(sort.u$x)),labels = sort.u$ivars,las=3)
+  axis(2, at=seq(0.0,1.0,0.2),labels=c("0%","20%","40%","60%","80%","100%"),las=3)
   abline(h=0.9,lty=4,col="#ff0000")
   abline(h=0.8,lty=2,col="#ff0000")
 }
 
-
-rightsveccoeffplot <- function(j,xmat,ymat){ #Plot coefficients of jth right singular vector
+rightsveccoeffplot <- function(j,k,xmat,ymat){ #Plot coefficients of jth right singular vector
   cov.mats <- cov(x=xmat,y=ymat)
   svd.mats <- svd(cov.mats)
-  bp.env <- barplot(height=svd.fern$v[,j],names.arg=env_vars,xlim=c(-1,1),
-                    main=sprintf("%s environmental axis",ordmap(j)),
-                    horiz=TRUE,yaxt="n",xlab="Coefficient",ylab="Environmental factor",las=1,
-                    cex=2.5,cex.axis=2.5,cex.lab=3.0,cex.main=5.0)
-  axis(side=2,at=bp.env,labels=env_vars,pos=-0.5,cex.axis=1.5,las=1) #Axis on left
-}
-
-rightsveccoeffsqplot <- function(j,xmat,ymat){ #Plot squared coefficients of jth right singular vector
-  cov.mats <- cov(x=xmat,y=ymat)
-  svd.mats <- svd(cov.mats)
+  coeffout <- min(k,dim(svd.mats$v[2]))
   #Pick out most important components of right singular vectors
-  sort.v <- sort(svd.fern$v[,j]^2,decreasing=TRUE,index.return=TRUE)
-  sort.v$ivars <- env_vars[sort.v$ix]
-  par(mar = c(5,0,0,0)+mar.custom)
-  plot(sort.v$x,ylab="Squared Coefficient",main=sprintf("%s environmental axis",ordmap(j)),xaxt="n",xlab="",
-       cex=2.5,cex.axis=2.5,cex.lab=3.0,cex.main=5.0)
-  axis(1, at = c(1:length(sort.v$x)),labels = sort.v$ivars,cex.lab=1.5,cex.axis=1.5,las=1)
+  sort.v <- sort(svd.mats$v[,j]^2,decreasing=TRUE,index.return=TRUE)
+  sort.v$ivars <- fern_names[sort.v$ix]
+  topindex.v <- sort(sort.v$ix[1:coeffout]) #Indices of top coeffout most important ferns on jth axis
+  top.v <- svd.fern$v[topindex.v,j]
+  par(mar=mar.custom,cex=1.75, cex.axis=1.75, cex.lab=1.75, cex.main=2.5)
+  bp.fern <- barplot(height=top.v, names.arg=sort.v$ivars[1:coeffout],xlim=c(-1,1),
+                    main=sprintf("%s fern species composition axis",ordmap(j)),
+                    horiz=TRUE,yaxt="n",xlab="Coefficient",ylab=sprintf("Top %d species",k),las=1)
+  #axis(side=2,at=bp.fern,labels=sort.v$ivars[1:coeffout],pos=-0.5,las=1) #Axis on left
+  axis(side=4,at=bp.fern,labels=sort.v$ivars[1:coeffout],pos=0.3,las=1) #Axis on right
 }
 
-rightsveccoeffcumsumsqplot <- function(j,xmat,ymat){ #Plot squared coefficients of jth right singular vector
+rightsveccoeffsqplot <- function(j,k,xmat,ymat){ #Plot squared coefficients of jth right singular vector
   cov.mats <- cov(x=xmat,y=ymat)
   svd.mats <- svd(cov.mats)
-  sort.v <- sort(svd.fern$v[,j]^2,decreasing=TRUE,index.return=TRUE)
-  sort.v$ivars <- env_vars[sort.v$ix]
-  par(mar = c(5,0,0,0)+mar.custom)
+  coeffout <- min(k,dim(svd.mats$v[2]))
+  #Pick out most important components of right singular vectors
+  sort.v <- sort(svd.mats$v[,j]^2,decreasing=TRUE,index.return=TRUE)
+  sort.v$ivars <- fern_names[sort.v$ix]
+  topindex.v <- sort(sort.v$ix[1:coeffout]) #Indices of top coeffout most important ferns on jth axis
+  top.v <- svd.fern$v[topindex.v,j]
+  par(mar = c(5,0,0,0)+mar.custom,cex=1.75, cex.axis=1.75, cex.lab=1.75, cex.main=2.5)
+  plot(sort.v$x[1:coeffout],ylab="Squared Coefficient",main=sprintf("%s species composition axis",ordmap(j)),
+       xaxt="n",xlab="",las=3)
+  axis(1, at = c(1:length(sort.v$x)),labels = sort.v$ivars,cex.lab=1.5,cex.axis=1.5,las=3)
+}
+
+rightsveccoeffcumsumsqplot <- function(j,k,xmat,ymat){ #Plot squared coefficients of jth right singular vector
+  cov.mats <- cov(x=xmat,y=ymat)
+  svd.mats <- svd(cov.mats)
+  sort.v <- sort(svd.mats$v[,j]^2,decreasing=TRUE,index.return=TRUE)
+  sort.v$ivars <- fern_names[sort.v$ix]
+  par(mar = c(5,0,0,0)+mar.custom,cex=1.75, cex.axis=1.75, cex.lab=1.75, cex.main=2.5)
   plot(cumsum(sort.v$x),ylim=c(0,1),ylab="Cumulative percentage sum of squares",
-       main=sprintf("%s environmental axis",ordmap(j)),xaxt="n",yaxt="n",xlab="",
-       cex=2.5,cex.axis=2.5,cex.lab=3.0,cex.main=5.0)
-  axis(1, at = c(1:length(sort.v$x)),labels = sort.v$ivars,cex.axis=1.5,cex.lab=1.5,las=1)
-  axis(2, at=seq(0.0,1.0,0.2),labels=c("0%","20%","40%","60%","80%","100%"),cex.axis=1.5,cex.lab=1.5,las=1)
+       main=sprintf("%s species composition axis",ordmap(j)),yaxt="n",xlab="Index")
+  #axis(1, at = c(1:length(sort.v$x)),labels = sort.v$ivars,cex.axis=1.5,cex.lab=1.5,las=1)
+  axis(2, at=seq(0.0,1.0,0.2),labels=c("0%","20%","40%","60%","80%","100%"),las=3)
   abline(h=0.9,lty=4,col="#ff0000")
   abline(h=0.8,lty=2,col="#ff0000")
 }
@@ -171,7 +180,7 @@ rightsveccoeffcumsumsqplot <- function(j,xmat,ymat){ #Plot squared coefficients 
 
 for(i in c(1,2)){
   pdf(sprintf("envaxis%d.pdf",i),width=18.75,height=18.75)
-  leftsveccoeffplot(i,xmat=mat.env_data,ymat=mat.bianca)
+  leftsveccoeffplot(i,99,xmat=mat.env_data,ymat=mat.bianca)
   dev.off()
   pdf(sprintf("envsqcoeffs%d.pdf",i),width=18.75,height=18.75)
   leftsveccoeffsqplot(i,xmat=mat.env_data,ymat=mat.bianca)
@@ -179,9 +188,30 @@ for(i in c(1,2)){
   pdf(sprintf("envcumsumsq%d.pdf",i),width=18.75,height=18.75)
   leftsveccoeffcumsumsqplot(i,xmat=mat.env_data,ymat=mat.bianca)
   dev.off()
+  pdf(sprintf("fernaxis%d.pdf",i),width=18.75,height=18.75)
+  rightsveccoeffplot(i,15,xmat=mat.env_data,ymat=mat.bianca)
+  dev.off()
+  pdf(sprintf("fernsqcoeffs%d.pdf",i),width=18.75,height=18.75)
+  rightsveccoeffsqplot(i,15,xmat=mat.env_data,ymat=mat.bianca)
+  dev.off()
+  pdf(sprintf("ferncumsumsq%d.pdf",i),width=18.75,height=18.75)
+  rightsveccoeffcumsumsqplot(i,xmat=mat.env_data,ymat=mat.bianca)
+  dev.off()
 }
 
-#Note: Fern compositions omitted here because a relatively large proportion of species is needed to explain each principal axis.
+# Note:
+# Only display 15 most significant fern species for each principal component as there are 
+# too many different species!
+# But these only explain about 50% of the cross-covariance contributed by fern proportions.
+# For 80-90%, need around 55/87 species, which is a bit messy when plotted
+
+#Get most significant species.
+#pdf("ferncumsumssq1.pdf",width=18.75,height=18.75)
+#rightsveccoeffcumsumsqplot(1,xmat=mat.env_data,ymat=mat.bianca)
+#dev.off()
+
+#sort.v1 <- sort(svd.fern$v[,1]^2,decreasing=TRUE,index.return=TRUE)
+#sort.v1$ivars <- fern_names[sort.v1$ix]
 
 #Step 3: Projection plots
 ftoc <- function(ftype){ #Color based on forest types
@@ -199,12 +229,12 @@ projplot <- function(j, xmat, ymat) { #data projection plot along jth principal 
     xproj <- append(xproj,sum(xmat[i,]*svd.mats$u[,j])) #Left projections on horizontal axis
   }
   plottitle <- sprintf("Projection along %s principal axes",ordmap(j))
-  par(mar=mar.custom)
-  plot(xproj,yproj,xlab="Environmental factors",ylab="Fern composition",main=plottitle,col=pcolors,
-       cex=2.5,cex.axis=2.5,cex.lab=3.0,cex.main=5.0) 
-  text(xproj,yproj,labels=env_data$plot,col=pcolors,cex=2.5)#LABEL PLOT IDS, THIS CAN MAKE PLOT A BIT MESSY
-  legend("bottomright",legend=c("HF","PWF","MDF"),col=c("#ff0000","#000080","#32CD32"),
-         pch=c(1,1,1),title="Forest type",cex=2.5)
+  par(mar=mar.custom,cex=1.75, cex.axis=1.75, cex.lab=1.75, cex.main=2.5)
+  plot(xproj,yproj,xlab="Environmental factors",ylab="Fern composition",main=plottitle,col=pcolors) 
+  text(xproj,yproj,labels=env_data$plot,col=pcolors,cex=1.5)#LABEL PLOT IDS, THIS CAN MAKE PLOT A BIT MESSY
+  legend("bottomright",legend=c("HF","PWF","MDF"),fill=c("#ff0000","#000080","#32CD32"),
+         title = "Forest type",cex=1.5)
+         #pch=c(1,1,1),title="Forest type",cex=1.5)
   abline(h=0)
   abline(v=0)
 } #BUG: Plot IDs are not labelled FIXED
