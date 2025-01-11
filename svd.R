@@ -219,6 +219,17 @@ ftoc <- function(ftype){ #Color based on forest types
 }
 pcolors <- sapply(env_data$forest.type,ftoc)
 
+writepvalue <- function(p){ #float input, string output
+  if(p < 10^-3){ #Do we need precision?
+    return("(p-value < 0.001)")
+  } else {
+    return(sprintf())
+  }
+  
+}
+
+
+
 projplot <- function(j, xmat, ymat) { #data projection plot along jth principal axes of svd, specialized for this dataset
   cov.mats <- cov(x=xmat,y=ymat)
   svd.mats <- svd(cov.mats)
@@ -228,9 +239,18 @@ projplot <- function(j, xmat, ymat) { #data projection plot along jth principal 
     yproj <- append(yproj,sum(ymat[i,]*svd.mats$v[,j])) #Right projections on vertical axis
     xproj <- append(xproj,sum(xmat[i,]*svd.mats$u[,j])) #Left projections on horizontal axis
   }
+  pvalue <- cor.test(xproj,yproj)$p.value #p-value of product moment correlation coefficient
+  #Convert from engineering notation to power 10 notation for presentation
+  split.pmcc <- strsplit(sprintf("%.1e",pvalue),"e") #Split on the e
+  val <- split.pmcc[[1]][1]
+  power <- as.numeric(split.pmcc[[1]][2])
+  pvalexp <- bquote(paste("(p-value = ",.(val),"\u00D7 10"^.(power),")"))#Expression object for reporting p-value
+  
   plottitle <- sprintf("Projection along %s principal axes",ordmap(j))
-  par(mar=mar.custom,cex=1.75, cex.axis=1.75, cex.lab=1.75, cex.main=2.5)
-  plot(xproj,yproj,xlab="Environmental factors",ylab="Fern composition",main=plottitle,col=pcolors) 
+  par(mar=mar.custom, cex=1.75, cex.axis=1.75, cex.lab=1.75, cex.main=2.5)
+  plot(xproj,yproj,xlab="Environmental factors",ylab="Fern composition",main=plottitle,
+       sub=pvalexp,col=pcolors,cex.sub=1.0)
+  #mtext(pvalexp,side=3,cex=1.75)
   text(xproj,yproj,labels=env_data$plot,col=pcolors,cex=1.5)#LABEL PLOT IDS, THIS CAN MAKE PLOT A BIT MESSY
   legend("bottomright",legend=c("HF","PWF","MDF"),fill=c("#ff0000","#000080","#32CD32"),
          title = "Forest type",cex=1.5)
