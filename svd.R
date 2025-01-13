@@ -49,10 +49,10 @@ sv_ids <- 1:ncol(svd.fern$v)
 #colnames(svd.fern$v) <- paste(rep_len("fernsv",ncol(svd.fern$v)),sv_ids,sep="") #Must set row and column names prior to write.csv
 colnames(svd.fern$v) <- rep_len(sprintf("fernsv%d",sv_ids),ncol(svd.fern$v))
 rownames(svd.fern$v) <- fern_names
-write.csv(t(svd.fern$v), file="fern-sv.csv",row.names=TRUE)
+write.csv(svd.fern$v, file="fern-svec.csv",row.names=TRUE)
 colnames(svd.fern$u) <- rep_len(sprintf("envsv%d",sv_ids),ncol(svd.fern$u)) #Must set row and column names prior to write.csv
 rownames(svd.fern$u) <- env_vars
-write.csv(t(svd.fern$u), file="env-sv.csv",row.names=TRUE)
+write.csv(svd.fern$u, file="env-svec.csv",row.names=TRUE)
 
 df.sv <- data.frame(c(1:length(svd.fern$d)),svd.fern$d)
 colnames(df.sv) <- c("index","sv")
